@@ -34,6 +34,11 @@ export class OrderController {
     return this.orderService.getOneByToken(token)
   }
 
+  @Get('/check-order-for-pay/:token')
+  checkOrderForPay(@Param('token') token: string) {
+    return this.orderService.checkOrderForPay(token)
+  }
+
   @Delete('/:id')
   delete(@Param('id') id: number) {
     return this.orderService.delete(id)

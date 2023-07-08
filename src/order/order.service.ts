@@ -9,6 +9,7 @@ import {BookOrder} from "../intermediate-table/book-order.model";
 import {ICreatePayment, YooCheckout} from "@a2seven/yoo-checkout";
 import * as uuid from "uuid"
 import {CreatePaymentDto} from "./dto/create-payment.dto";
+import {TempOrder} from "./temp-order.model";
 
 @Injectable()
 export class OrderService {
@@ -16,7 +17,8 @@ export class OrderService {
   constructor(@InjectModel(Order) private orderRepository: typeof Order,
               @InjectModel(Book) private bookRepository: typeof Book,
               @InjectModel(Genre) private genreRepository: typeof Genre,
-              @InjectModel(BookOrder) private bookOrderRepository: typeof BookOrder) {
+              @InjectModel(BookOrder) private bookOrderRepository: typeof BookOrder,
+              @InjectModel(TempOrder) private tempOrderRepository: typeof TempOrder) {
   }
 
   async create(dto: CreateOrderDto) {
@@ -97,27 +99,35 @@ export class OrderService {
   }
 
   async createPayment(dto: CreatePaymentDto) {
-    try {
-      const checkout = new YooCheckout({shopId: '214872', secretKey: 'test_jOGJQ29WtprKkZ8Bprgx_zN9TdtYLk7nZkD-m3H0kgI'})
-      const idempotenceKey = uuid.v4()
-      const createPayload: ICreatePayment = {
-        amount: {
-          value: dto.price.toString(),
-          currency: 'RUB'
-        },
-        payment_method_data: {
-          type: 'bank_card'
-        },
-        confirmation: {
-          type: 'redirect',
-          return_url: 'http://localhost:3000/make-order'
-        },
-        capture: true
-      }
-      return await checkout.createPayment(createPayload, idempotenceKey)
-    } catch (e) {
-      console.log(e)
+    const checkout = new YooCheckout({shopId: '214872', secretKey: 'test_jOGJQ29WtprKkZ8Bprgx_zN9TdtYLk7nZkD-m3H0kgI'})
+    const idempotenceKey = uuid.v4()
+    const createPayload: ICreatePayment = {
+      amount: {
+        value: dto.price.toString(),
+        currency: 'RUB'
+      },
+      payment_method_data: {
+        type: 'bank_card'
+      },
+      confirmation: {
+        type: 'redirect',
+        return_url: `http://localhost:3000/payed-order/${idempotenceKey}`
+      },
+      capture: true
     }
+
+    await this.tempOrderRepository.create({ token: idempotenceKey })
+
+    return await checkout.createPayment(createPayload, idempotenceKey)
   }
 
+  async checkOrderForPay(token: string) {
+    const tempOrder = await this.tempOrderRepository.findOne({where: {token}})
+    if (tempOrder) {
+      await tempOrder.destroy()
+      return tempOrder
+    } else {
+      return null
+    }
+  }
 }
