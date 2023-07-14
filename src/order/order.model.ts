@@ -6,11 +6,12 @@ interface OrderCreationAttrs {
   name: string;
   email: string;
   token: string;
+  number: string;
   date: number;
   price: number;
 }
 
-@Table({ tableName: 'orders', createdAt: false })
+@Table({ tableName: 'orders' })
 export class Order extends Model<Order, OrderCreationAttrs> {
 
   @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
@@ -23,14 +24,17 @@ export class Order extends Model<Order, OrderCreationAttrs> {
   token: string;
 
   @Column({type: DataType.STRING, allowNull: false})
+  number: string;
+
+  @Column({type: DataType.STRING, allowNull: false})
   email: number;
 
-  @Column({type: DataType.INTEGER, allowNull: false, defaultValue: Date.now()})
+  @Column({type: DataType.BIGINT, allowNull: false, defaultValue: Date.now()})
   date: number;
 
   @Column({type: DataType.FLOAT, allowNull: false, defaultValue: 0})
   price: number;
 
   @BelongsToMany(() => Book, () => BookOrder)
-  books: Book[]
+  books: Array<Book & {BookAuthor: BookOrder}>
 }

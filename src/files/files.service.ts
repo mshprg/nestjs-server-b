@@ -50,6 +50,10 @@ export class FilesService {
     }
   }
 
+  async pathForDownloadFile() {
+    return path.resolve(__dirname, '..', 'static', TypeFile.BOOK)
+  }
+
   private static writeBookFile(uid, file) {
     const extname = file.originalname.split('.').pop()
     switch (extname) {

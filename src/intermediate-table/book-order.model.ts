@@ -1,4 +1,4 @@
-import {Table, Model, ForeignKey, Column, DataType} from "sequelize-typescript";
+import {Table, Model, ForeignKey, Column, HasOne, DataType} from "sequelize-typescript";
 import { Book } from "../book/book.model";
 import {Order} from "../order/order.model";
 
@@ -7,11 +7,8 @@ interface BookOrderCreationAttrs {
   orderId: number;
 }
 
-@Table({ tableName: 'book-orders', createdAt: false, updatedAt: false })
+@Table({ tableName: 'book-orders', createdAt: false, updatedAt: false,  })
 export class BookOrder extends Model<BookOrder, BookOrderCreationAttrs> {
-
-  @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
-  id: number;
 
   @ForeignKey(() => Book)
   @Column
@@ -20,5 +17,4 @@ export class BookOrder extends Model<BookOrder, BookOrderCreationAttrs> {
   @ForeignKey(() => Order)
   @Column
   orderId: number;
-
 }

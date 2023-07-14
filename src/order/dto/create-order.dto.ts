@@ -10,4 +10,7 @@ export class CreateOrderDto {
 
   @IsString({message: "Массив книг должен быть строкой"})
   bookIds: string;
+
+  @IsString({message: "Токен должен быть строкой"})
+  token: string;
 }

@@ -8,12 +8,15 @@ import {GetBookFiltersDto} from "./dto/get-book-filters.dto";
 import {Op} from "sequelize";
 import {BookGenre} from "../intermediate-table/book-genre.model";
 import {Genre} from "../genre/genre.model";
-import {Sequelize} from "sequelize-typescript";
+import {BookOrder} from "../intermediate-table/book-order.model";
+import * as fs from "fs"
+import {Response} from "express";
 
 @Injectable()
 export class BookService {
   constructor(@InjectModel(Book) private bookRepository: typeof Book,
               @InjectModel(BookGenre) private bookGenreRepository: typeof BookGenre,
+              @InjectModel(BookOrder) private bookOrderRepository: typeof BookOrder,
               @InjectModel(Genre) private genreRepository: typeof Genre,
               private fileService: FilesService) {
   }
@@ -22,8 +25,7 @@ export class BookService {
     const fileName = await this.fileService.createBookFiles(file_pdf, file_epb)
     const imageName = await this.fileService.createImageFile(image)
     const book = await this.bookRepository.create(
-      { ...dto, file: fileName, image: imageName, token: dto.name.toLowerCase()
-          .replaceAll(" ", '') + '-' + Date.now() })
+      { ...dto, file: fileName, image: imageName, token: "bookbyte" + '-' + Date.now() })
     await book.$set('genres', [])
     await book.$set('orders', [])
     book.genres = []
@@ -93,7 +95,7 @@ export class BookService {
   }
 
   async getAllByFilterPage(dto: GetBookFiltersDto) {
-    const limit = 15
+    const limit = 1
     const offset = dto.page * limit - limit
     const genreIds = JSON.parse(dto.genres)
     let bookIds = []
@@ -106,16 +108,23 @@ export class BookService {
     if (bookIds.length === 0 && genreIds.length !== 0) {
       return {count: 0, rows: [], pageCount: 0}
     } else {
-      const all_books = await this.bookRepository.findAll()
+      const all_books = await this.bookRepository.findAll({
+        where: {
+          id: {[Op.or]: bookIds},
+          price: {[Op.gte]: dto.min_price, [Op.lte]: dto.max_price},
+          name: {[Op.iRegexp]: `${dto.name}`}
+        },
+      })
       const books_row = await this.bookRepository.findAndCountAll({
         where: {
           id: {[Op.or]: bookIds},
           price: {[Op.gte]: dto.min_price, [Op.lte]: dto.max_price},
+          name: {[Op.iRegexp]: `${dto.name}`}
         },
         limit,
         offset
       })
-      return {...books_row, pageCount: Math.floor(all_books.length / limit) + 1}
+      return {...books_row, pageCount: Math.floor(all_books.length / limit)}
     }
   }
 
@@ -140,5 +149,26 @@ export class BookService {
     return await this.bookRepository.findAll({
       where: {id: {[Op.or]: bookIds}}
     })
+  }
+
+  async getBookByOrderId(id: number) {
+    const book_orders = await this.bookOrderRepository.findAll({where: {orderId: id}})
+    const bookIds = []
+    book_orders.forEach(item => {
+      bookIds.push(item.bookId)
+    })
+    if (bookIds.length !== 0) {
+      return await this.bookRepository.findAll({where: {id: {[Op.or]: bookIds}}})
+    } else {
+      return []
+    }
+  }
+
+  async downloadBookFile(name: string, type: string, res: Response) {
+    const pathFile = await this.fileService.pathForDownloadFile() + '\\' + name + type
+    if (fs.existsSync(pathFile)) {
+      return res.download(pathFile, "book" + type)
+    }
+    return res
   }
 }

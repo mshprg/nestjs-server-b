@@ -6,13 +6,14 @@ import {SequelizeModule} from "@nestjs/sequelize";
 import {Book} from "./book.model";
 import {BookGenre} from "../intermediate-table/book-genre.model";
 import {Genre} from "../genre/genre.model";
+import {BookOrder} from "../intermediate-table/book-order.model";
 
 @Module({
   providers: [BookService],
   controllers: [BookController],
   imports: [
       FilesModule,
-      SequelizeModule.forFeature([Book, BookGenre, Genre])
+      SequelizeModule.forFeature([Book, BookGenre, Genre, BookOrder])
   ]
 })
 export class BookModule {}

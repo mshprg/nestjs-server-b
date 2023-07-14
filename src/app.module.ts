@@ -16,6 +16,7 @@ import {BasketItem} from "./basket-item/basket-item.model";
 import {BasketModule} from "./basket/basket.module";
 import {BasketItemModule} from "./basket-item/basket-item.module";
 import {OrderModule} from "./order/order.module";
+import {TempOrder} from "./order/temp-order.model";
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import {OrderModule} from "./order/order.module";
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Book, BookGenre, BookOrder, Genre, Order, Basket, BasketItem],
+      models: [Book, BookGenre, BookOrder, Genre, Order, Basket, BasketItem, TempOrder],
       autoLoadModels: true,
     }),
     BookModule,

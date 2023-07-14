@@ -1,17 +1,11 @@
 import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
 import {OrderService} from "./order.service";
-import {CreateOrderDto} from "./dto/create-order.dto";
 import {CreatePaymentDto} from "./dto/create-payment.dto";
 
 @Controller('order')
 export class OrderController {
 
   constructor(private orderService: OrderService) {
-  }
-
-  @Post('')
-  create(@Body() dto: CreateOrderDto) {
-    return this.orderService.create(dto)
   }
 
   @Post('/create-payment')
@@ -32,6 +26,11 @@ export class OrderController {
   @Get('/by-token/:token')
   getOneByToken(@Param('token') token: string) {
     return this.orderService.getOneByToken(token)
+  }
+
+  @Get('/by-number/:number')
+  getOneByNumber(@Param('number') number: string) {
+    return this.orderService.getOneByNumber(number)
   }
 
   @Get('/check-order-for-pay/:token')

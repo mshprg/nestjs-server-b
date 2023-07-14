@@ -1,9 +1,21 @@
-import {Body, Controller, Get, Param, Post, UploadedFile, UploadedFiles, UseInterceptors} from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Res,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors
+} from "@nestjs/common";
 import { BookService } from "./book.service";
 import { CreateBookDto } from "./dto/create-book.dto";
 import {FileFieldsInterceptor, FileInterceptor} from "@nestjs/platform-express";
 import { ChangeBookDto } from "./dto/change-book.dto";
 import { GetBookFiltersDto } from "./dto/get-book-filters.dto";
+import {Response} from "express";
 
 @Controller('book')
 export class BookController {
@@ -54,8 +66,18 @@ export class BookController {
     return this.bookService.getBookByIds(array)
   }
 
+  @Get('/by-order-id/:id')
+  getBooksByOrderId(@Param('id') id: number) {
+    return this.bookService.getBookByOrderId(id)
+  }
+
+  @Get('/download-book/')
+  downloadBook(@Query('filename') name: string, @Query('type') type: string, @Res() res: Response) {
+    return this.bookService.downloadBookFile(name, type, res)
+  }
+
   @Post('/by-filter')
-  getBookByFilter(@Body() dto:GetBookFiltersDto) {
+  getBookByFilter(@Body() dto: GetBookFiltersDto) {
     return this.bookService.getAllByFilterPage(dto)
   }
 

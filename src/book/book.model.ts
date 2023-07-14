@@ -61,5 +61,5 @@ export class Book extends Model<Book, BookCreationAttrs> {
   genres: Genre[]
 
   @BelongsToMany(() => Order, () => BookOrder)
-  orders: Order[]
+  orders: Array<Order & {BookAuthor: BookOrder}>
 }

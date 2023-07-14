@@ -15,4 +15,6 @@ export class GetBookFiltersDto {
 
   @IsString({message: "Массив фильтров должен быть строкой"})
   genres: string;
+
+  name: string
 }

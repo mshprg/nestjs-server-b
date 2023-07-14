@@ -10,9 +10,6 @@ interface BookGenreCreationAttrs {
 @Table({ tableName: 'book-genres', createdAt: false, updatedAt: false })
 export class BookGenre extends Model<BookGenre, BookGenreCreationAttrs> {
 
-  @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true, primaryKey: true })
-  id: number;
-
   @ForeignKey(() => Book)
   @Column
   bookId: number;
