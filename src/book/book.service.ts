@@ -95,7 +95,7 @@ export class BookService {
   }
 
   async getAllByFilterPage(dto: GetBookFiltersDto) {
-    const limit = 1
+    const limit = 15
     const offset = dto.page * limit - limit
     const genreIds = JSON.parse(dto.genres)
     let bookIds = []
@@ -124,7 +124,8 @@ export class BookService {
         limit,
         offset
       })
-      return {...books_row, pageCount: Math.floor(all_books.length / limit)}
+      const count = Math.floor(all_books.length / limit)
+      return {...books_row, pageCount: count !== 0 ? count : 1}
     }
   }
 

@@ -2,6 +2,7 @@ import { Column, DataType, Table, Model } from "sequelize-typescript";
 
 interface TempOrderCreationAttrs {
     token: string;
+    paymentId: string;
     name: string;
     email: string;
     price: number;
@@ -19,6 +20,9 @@ export class TempOrder extends Model<TempOrder, TempOrderCreationAttrs> {
 
     @Column({type: DataType.STRING, allowNull: false})
     token: string;
+
+    @Column({type: DataType.STRING, allowNull: false})
+    paymentId: string;
 
     @Column({type: DataType.STRING, allowNull: false})
     name: string;

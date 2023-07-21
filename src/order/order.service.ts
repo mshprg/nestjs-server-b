@@ -140,7 +140,7 @@ export class OrderService {
         throw new HttpException("Одна из книг недоступна для покупки", HttpStatus.BAD_REQUEST)
       }
     })
-    const checkout = new YooCheckout({shopId: '214872', secretKey: 'test_jOGJQ29WtprKkZ8Bprgx_zN9TdtYLk7nZkD-m3H0kgI'})
+    const checkout = new YooCheckout({shopId: process.env.YOOKASSA_SHOP_ID, secretKey: process.env.YOOKASSA_SECRET_KEY})
     const idempotenceKey = uuid.v4()
     const createPayload: ICreatePayment = {
       amount: {
@@ -157,14 +157,23 @@ export class OrderService {
       capture: true
     }
 
-    await this.tempOrderRepository.create({...dto, token: idempotenceKey})
+    const payment = await checkout.createPayment(createPayload, idempotenceKey)
+    await this.tempOrderRepository.create({...dto, token: idempotenceKey, paymentId: payment.id})
 
-    return await checkout.createPayment(createPayload, idempotenceKey)
+    return payment
   }
 
   async checkOrderForPay(token: string) {
     const tempOrder = await this.tempOrderRepository.findOne({where: {token}})
+    const checkout = new YooCheckout({shopId: process.env.YOOKASSA_SHOP_ID, secretKey: process.env.YOOKASSA_SECRET_KEY})
+    let payment = null
     if (tempOrder) {
+      payment = await checkout.getPayment(tempOrder.paymentId)
+    }
+    if (tempOrder && payment) {
+      if (payment.status !== "succeeded") {
+        return undefined
+      }
       JSON.parse(tempOrder.bookIds)
       const order = await this.create({name: tempOrder.name, email: tempOrder.email,
         bookIds: tempOrder.bookIds, token: tempOrder.token})

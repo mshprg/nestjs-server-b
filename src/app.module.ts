@@ -17,6 +17,7 @@ import {BasketModule} from "./basket/basket.module";
 import {BasketItemModule} from "./basket-item/basket-item.module";
 import {OrderModule} from "./order/order.module";
 import {TempOrder} from "./order/temp-order.model";
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import {TempOrder} from "./order/temp-order.model";
     GenreModule,
     BasketModule,
     BasketItemModule,
-    OrderModule
+    OrderModule,
+    AuthModule
   ],
 })
 export class AppModule {}
