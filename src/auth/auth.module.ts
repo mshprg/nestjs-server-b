@@ -17,9 +17,6 @@ import {getMailConfig} from "../configs/mail.config";
     }),
     JwtModule.register({
       secret: process.env.PRIVATE_KEY || 'SECRET_KEY',
-      signOptions: {
-        expiresIn: '24h'
-      }
     }),
   ]
 })

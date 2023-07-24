@@ -17,12 +17,22 @@ export class AuthService {
     return {message: "token has been sent on your email"}
   }
 
+  async checkForAdmin(token: string, id: string) {
+    try {
+      const tk : any = this.jwtService.decode(token)
+      const res = await bcrypt.compare(id, tk.shift)
+      return (tk.id === id && res);
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+  }
+
   private async generateToken() {
     const id = uuid.v4();
-    const saltRounds = "jwt-token-auth"
-    const salt = await bcrypt.genSalt(saltRounds);
+    const salt = await bcrypt.genSalt(10);
     const shift = await bcrypt.hash(id, salt);
-    const payload = {id, shift: shift, salt, expire: Date.now() + 86400000}
+    const payload = {id, shift, dart: salt, expire: Date.now() + 86400000}
     return {token: this.jwtService.sign(payload), id}
   }
 
