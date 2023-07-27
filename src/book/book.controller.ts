@@ -1,13 +1,13 @@
 import {
   Body,
-  Controller,
+  Controller, Delete,
   Get,
   Param,
   Post,
   Query,
   Res,
   UploadedFile,
-  UploadedFiles,
+  UploadedFiles, UseGuards,
   UseInterceptors
 } from "@nestjs/common";
 import { BookService } from "./book.service";
@@ -16,6 +16,7 @@ import {FileFieldsInterceptor, FileInterceptor} from "@nestjs/platform-express";
 import { ChangeBookDto } from "./dto/change-book.dto";
 import { GetBookFiltersDto } from "./dto/get-book-filters.dto";
 import {Response} from "express";
+import {AuthGuard} from "../auth/auth.guard";
 
 @Controller('book')
 export class BookController {
@@ -23,29 +24,36 @@ export class BookController {
   constructor(private bookService: BookService) {
   }
 
+  @UseGuards(AuthGuard)
   @Post('/')
   @UseInterceptors(FileFieldsInterceptor([
     { name: "image", maxCount: 1 },
     { name: "file_pdf", maxCount: 1 },
-    { name: "file_epb", maxCount: 1 },
+    { name: "file_epub", maxCount: 1 },
   ]))
   create(@UploadedFiles() files, @Body() dto: CreateBookDto) {
-    const {image, file_pdf, file_epb} = files
-    return this.bookService.create(dto, image[0], file_pdf[0], file_epb[0])
+    const {image, file_pdf, file_epub} = files
+    return this.bookService.create(dto, image[0], file_pdf[0], file_epub[0])
   }
 
+  @UseGuards(AuthGuard)
   @Post('/change-book')
-  @UseInterceptors(FileInterceptor, FileInterceptor, FileInterceptor)
-  changeBook(@UploadedFile() image, @UploadedFile() file_pdf,
-         @UploadedFile() file_epb, @Body() dto: ChangeBookDto) {
-    return this.bookService.changeBook(dto, image[0], file_pdf[0], file_epb[0])
+  @UseInterceptors(FileFieldsInterceptor([
+    { name: "image", maxCount: 1 },
+    { name: "file_pdf", maxCount: 1 },
+    { name: "file_epub", maxCount: 1 },
+  ]))
+  changeBook(@UploadedFiles() files, @Body() dto: ChangeBookDto) {
+    const {image, file_pdf, file_epub} = files
+    return this.bookService.changeBook(dto, image, file_pdf, file_epub)
   }
 
   @Get('/by-token/:token')
-  getBookById(@Param('token') token: string) {
+  getBookByToken(@Param('token') token: string) {
     return this.bookService.getOne(token)
   }
 
+  @UseGuards(AuthGuard)
   @Get('/all-books')
   getAllBooks() {
     return this.bookService.getAll()
@@ -81,7 +89,8 @@ export class BookController {
     return this.bookService.getAllByFilterPage(dto)
   }
 
-  @Post('/delete/:id')
+  @UseGuards(AuthGuard)
+  @Delete('/delete/:id')
   deleteBook(@Param('id') id: number) {
     return this.bookService.deleteBook(id)
   }

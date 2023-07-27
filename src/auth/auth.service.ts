@@ -21,9 +21,8 @@ export class AuthService {
     try {
       const tk : any = this.jwtService.decode(token)
       const res = await bcrypt.compare(id, tk.shift)
-      return (tk.id === id && res);
+      return (tk.id === id && res && tk.expire >= Date.now());
     } catch (e) {
-      console.log(e)
       return false
     }
   }
@@ -32,7 +31,7 @@ export class AuthService {
     const id = uuid.v4();
     const salt = await bcrypt.genSalt(10);
     const shift = await bcrypt.hash(id, salt);
-    const payload = {id, shift, dart: salt, expire: Date.now() + 86400000}
+    const payload = {id, shift, expire: Date.now() + 86400000}
     return {token: this.jwtService.sign(payload), id}
   }
 

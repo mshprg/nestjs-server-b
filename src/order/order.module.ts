@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import { OrderService } from './order.service';
 import {SequelizeModule} from "@nestjs/sequelize";
 import {Genre} from "../genre/genre.model";
@@ -11,6 +11,7 @@ import {TempOrder} from "./temp-order.model";
 import {MailerModule} from "@nestjs-modules/mailer";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {getMailConfig} from "../configs/mail.config";
+import {AuthModule} from "../auth/auth.module";
 
 @Module({
   providers: [OrderService],
@@ -22,6 +23,7 @@ import {getMailConfig} from "../configs/mail.config";
       inject: [ConfigService],
       useFactory: getMailConfig,
     }),
+    AuthModule
   ]
 })
 export class OrderModule {}

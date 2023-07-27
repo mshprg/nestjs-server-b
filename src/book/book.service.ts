@@ -11,12 +11,14 @@ import {Genre} from "../genre/genre.model";
 import {BookOrder} from "../intermediate-table/book-order.model";
 import * as fs from "fs"
 import {Response} from "express";
+import {BasketItem} from "../basket-item/basket-item.model";
 
 @Injectable()
 export class BookService {
   constructor(@InjectModel(Book) private bookRepository: typeof Book,
               @InjectModel(BookGenre) private bookGenreRepository: typeof BookGenre,
               @InjectModel(BookOrder) private bookOrderRepository: typeof BookOrder,
+              @InjectModel(BasketItem) private basketItemRepository: typeof BasketItem,
               @InjectModel(Genre) private genreRepository: typeof Genre,
               private fileService: FilesService) {
   }
@@ -34,44 +36,67 @@ export class BookService {
   }
 
   async changeBook(dto: ChangeBookDto, image, file_pdf, file_epb) {
+    const genreIds: number[] = JSON.parse(dto.genreIds)
     const book = await this.bookRepository.findByPk(dto.id)
     if (!book) {
       throw new HttpException("Книга не найдена", HttpStatus.NOT_FOUND)
     }
-    if (file_pdf.originalname.split('.').pop()[0] !== book.file ||
-      file_epb.originalname.split('.').pop()[0] !== book.file) {
-      const fileName = await this.fileService.createBookFiles(file_pdf, file_epb)
-      await this.fileService.removeFile(book.file + ".pdf", TypeFile.BOOK)
-      await this.fileService.removeFile(book.file + ".epb", TypeFile.BOOK)
-      book.file = fileName
-    }
-    if (image.originalname.split('.').pop()[0] !== book.image) {
-      const imageName = await this.fileService.createImageFile(image)
-      await this.fileService.removeFile(book.image, TypeFile.IMAGE)
-      book.image = imageName
-    }
-    const genres_candidate = await this.genreRepository.findAll({where:
-        {id: {[Op.or]: dto.genreIds}}
-    })
-    if (genres_candidate.length !== dto.genreIds.length) {
-      throw new HttpException("Один или несколько жанров не существует", HttpStatus.BAD_REQUEST)
-    }
-    const genre_book_list: any[] = await this.bookGenreRepository.findAll({where:
-        {
-          bookId: dto.id,
-          genreId: {
-            [Op.or]: dto.genreIds
-          }
-        }
-    })
-    for (let i = 0; i < dto.genreIds.length; i++) {
-      if (!genre_book_list.includes(el => el.genreId === dto.genreIds[i])) {
-        await this.bookGenreRepository.create({bookId: book.id, genreId: dto.genreIds[i]})
-        await book.$add('genre', dto.genreIds[i])
+    if (file_pdf && file_epb) {
+      file_epb = file_epb[0]
+      file_pdf = file_pdf[0]
+      if (file_pdf.originalname.split('.').pop()[0] !== book.file ||
+        file_epb.originalname.split('.').pop()[0] !== book.file) {
+        const fileName = await this.fileService.createBookFiles(file_pdf, file_epb)
+        await this.fileService.removeFile(book.file + ".pdf", TypeFile.BOOK)
+        await this.fileService.removeFile(book.file + ".epub", TypeFile.BOOK)
+        book.file = fileName
       }
     }
+    if (image) {
+      image = image[0]
+      if (image.originalname.split('.')[0] !== book.image.split('.')[0]) {
+        const imageName = await this.fileService.createImageFile(image)
+        await this.fileService.removeFile(book.image, TypeFile.IMAGE)
+        book.image = imageName
+      }
+    }
+    if (genreIds.length !== 0) {
+      const genres_candidate = await this.genreRepository.findAll({where:
+          {id: {[Op.or]: genreIds}}
+      })
+      if (genres_candidate.length !== genreIds.length) {
+        throw new HttpException("Один или несколько жанров не существует", HttpStatus.BAD_REQUEST)
+      }
+      const genre_book_list: any[] = await this.bookGenreRepository.findAll({where:
+          {
+            bookId: dto.id,
+          }
+      })
+      for (let i = 0; i < genreIds.length; i++) {
+        if (!genre_book_list.find(el => el.genreId === genreIds[i])) {
+          await this.bookGenreRepository.create({bookId: book.id, genreId: genreIds[i]})
+        }
+      }
+      const genreIdsForDelete = []
+      for (let i = 0; i < genre_book_list.length; i++) {
+        if (!genreIds.find(id => id === genre_book_list[i].genreId)) {
+          genreIdsForDelete.push(genre_book_list[i].genreId)
+        }
+      }
+      if (genreIdsForDelete.length !== 0) {
+        await this.bookGenreRepository.destroy({where:
+            {
+              bookId: dto.id,
+              genreId: {
+                [Op.or]: genreIdsForDelete
+              }
+            }
+        })
+      }
+    } else {
+      await this.bookGenreRepository.destroy({where: {bookId: dto.id}})
+    }
     book.name = dto.name
-    book.token = dto.name.toLowerCase() .replaceAll(" ", '') + '-' + Date.now()
     book.beginning_book = dto.beginning_book
     book.price = dto.price
     book.visibility = dto.visibility
@@ -82,7 +107,14 @@ export class BookService {
   }
 
   async deleteBook(id: number) {
-    await this.bookRepository.destroy({where: {id}})
+    const book = await this.bookRepository.findOne({where: {id}})
+    if (!book) {
+      throw new HttpException("Книга с таким id не существует", HttpStatus.BAD_REQUEST)
+    }
+    await this.bookGenreRepository.destroy({where: {bookId: id}})
+    await this.bookOrderRepository.destroy({where: {bookId: id}})
+    await this.basketItemRepository.destroy({where: {bookId: id}})
+    await book.destroy()
     return {message: "Success"}
   }
 
@@ -99,11 +131,16 @@ export class BookService {
     const offset = dto.page * limit - limit
     const genreIds = JSON.parse(dto.genres)
     let bookIds = []
-    const book_genres = await this.bookGenreRepository.findAll({
-      where: {genreId: {[Op.or]: genreIds}}
-    })
+    let book_genres = []
+    if (genreIds.length !== 0) {
+      book_genres = await this.bookGenreRepository.findAll({
+        where: {genreId: {[Op.or]: genreIds}}
+      })
+    }
     book_genres.forEach(el => {
-      bookIds.push(el.bookId)
+      if (bookIds.indexOf(el.bookId) !== -1) {
+        bookIds.push(el.bookId)
+      }
     })
     if (bookIds.length === 0 && genreIds.length !== 0) {
       return {count: 0, rows: [], pageCount: 0}
@@ -115,6 +152,7 @@ export class BookService {
           name: {[Op.iRegexp]: `${dto.name}`}
         },
       })
+      console.log(all_books)
       const books_row = await this.bookRepository.findAndCountAll({
         where: {
           id: {[Op.or]: bookIds},
@@ -130,7 +168,7 @@ export class BookService {
   }
 
   async getPrices() {
-    const books = await this.getAll()
+    const books = await this.bookRepository.findAll({where: {visibility: true}})
     let min = 0, max = 0
     if (books.length !== 0) {
       books.sort((prev, next) => prev.price - next.price)
@@ -141,7 +179,8 @@ export class BookService {
   }
 
   async getLastBook() {
-    return this.bookRepository.findOne()
+    const books = await this.bookRepository.findAll({order: [['createdAt', 'DESC']]})
+    return books[0]
   }
 
   async getBookByIds(array: string) {
@@ -159,7 +198,13 @@ export class BookService {
       bookIds.push(item.bookId)
     })
     if (bookIds.length !== 0) {
-      return await this.bookRepository.findAll({where: {id: {[Op.or]: bookIds}}})
+      const booksData = await this.bookRepository.findAll({where: {id: {[Op.or]: bookIds}}})
+      const books = []
+      booksData.forEach(book => {
+        const book_order = book_orders.find(el => el.bookId === book.id)
+        books.push({...book.dataValues, price: book_order.price})
+      })
+      return books
     } else {
       return []
     }

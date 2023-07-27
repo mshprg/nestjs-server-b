@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {AuthController} from "./auth.controller";
-import {JwtModule} from "@nestjs/jwt";
+import {JwtModule, JwtService} from "@nestjs/jwt";
 import {MailerModule} from "@nestjs-modules/mailer";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {getMailConfig} from "../configs/mail.config";
@@ -18,6 +18,9 @@ import {getMailConfig} from "../configs/mail.config";
     JwtModule.register({
       secret: process.env.PRIVATE_KEY || 'SECRET_KEY',
     }),
+  ],
+  exports: [
+    JwtModule
   ]
 })
 export class AuthModule {}

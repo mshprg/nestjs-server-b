@@ -39,7 +39,6 @@ export class BasketService {
   }
 
   async cleanBasket(token: string) {
-    const basket = await this.basketRepository.findAll({where: {token}})
     await this.basketItemRepository.destroy({where: {basketToken: token}})
     return {message: "cleaned"}
   }

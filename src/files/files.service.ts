@@ -46,7 +46,7 @@ export class FilesService {
       fs.unlinkSync(path.join(filePath, name))
       return name
     } catch (e) {
-      throw new HttpException('Произошла ошибка при удалении файла', HttpStatus.INTERNAL_SERVER_ERROR)
+      console.log(e)
     }
   }
 

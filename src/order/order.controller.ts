@@ -1,6 +1,7 @@
-import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, UseGuards} from '@nestjs/common';
 import {OrderService} from "./order.service";
 import {CreatePaymentDto} from "./dto/create-payment.dto";
+import {AuthGuard} from "../auth/auth.guard";
 
 @Controller('order')
 export class OrderController {
@@ -13,11 +14,13 @@ export class OrderController {
     return this.orderService.createPayment(dto)
   }
 
-  @Get('/page/:page')
-  getAllPage(@Param('page') page: number) {
-    return this.orderService.getAllPage(page)
+  @UseGuards(AuthGuard)
+  @Get('/')
+  getAll() {
+    return this.orderService.getAll()
   }
 
+  @UseGuards(AuthGuard)
   @Get('/by-id/:id')
   getOneById(@Param('id') id: number) {
     return this.orderService.getOneById(id)
@@ -38,6 +41,7 @@ export class OrderController {
     return this.orderService.checkOrderForPay(token)
   }
 
+  @UseGuards(AuthGuard)
   @Delete('/:id')
   delete(@Param('id') id: number) {
     return this.orderService.delete(id)

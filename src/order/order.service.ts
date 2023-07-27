@@ -86,7 +86,8 @@ export class OrderService {
     for (let i = 0; i < books.length; i++) {
       await this.bookOrderRepository.create({
         bookId: books[i].id,
-        orderId: order.id
+        orderId: order.id,
+        price: books[i].price,
       })
       await books[i].$add('order', order)
     }
@@ -109,11 +110,8 @@ export class OrderService {
     return order
   }
 
-  async getAllPage(page: number) {
-    if (page < 1) throw new HttpException("Ошибка: номер страницы меньше 1", HttpStatus.INTERNAL_SERVER_ERROR)
-    const limit = 15
-    const offset = page * limit - limit
-    return await this.orderRepository.findAndCountAll({limit, offset})
+  async getAll() {
+    return this.orderRepository.findAll()
   }
 
   async getOneById(id: number) {

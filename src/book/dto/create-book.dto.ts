@@ -13,7 +13,7 @@ export class CreateBookDto {
   @Min(-1, {message: "discount_price минимум -1"})
   discount_price: number;
 
-  @Length(60, 340, {message: "description от 60 до 340 символов"})
+  @Length(60, 320, {message: "description от 60 до 320 символов"})
   description: string;
 
   @Length(60, 550, {message: "beginning_book от 60 до 550 символов"})

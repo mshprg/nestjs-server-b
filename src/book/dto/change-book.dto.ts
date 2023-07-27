@@ -1,4 +1,4 @@
-import {IsArray, IsBoolean, IsNumber, Length, Min} from "class-validator";
+import {IsArray, IsBoolean, IsNumber, IsString, Length, Min} from "class-validator";
 
 export class ChangeBookDto {
 
@@ -16,15 +16,15 @@ export class ChangeBookDto {
   @Min(-1, {message: "discount_price минимум -1"})
   discount_price: number;
 
-  @Length(60, 340, {message: "description от 60 до 340 символов"})
+  @Length(60, 320, {message: "description от 60 до 320 символов"})
   description: string;
 
-  @Length(60, 550, {message: "beginning_book от 60 до 550 символов"})
+  @Length(60, 420, {message: "beginning_book от 60 до 420 символов"})
   beginning_book: string;
 
   @IsBoolean({message: "visibility имеет тип boolean"})
   visibility: boolean;
 
-  @IsArray({message: "genreIds должно быть массивом числел"})
-  genreIds: number[]
+  @IsString({message: "genreIds должно быть массивом чисел"})
+  genreIds: string
 }
