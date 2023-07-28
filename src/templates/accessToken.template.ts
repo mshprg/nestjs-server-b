@@ -1,5 +1,5 @@
 
-function accessTokenTemplate(token: string, id: string): string {
+export default function accessTokenTemplate(token: string, id: string): string {
     return (
         `<main>
             Выполнен запрос токена<br />

@@ -11,8 +11,8 @@ import * as uuid from "uuid"
 import {CreatePaymentDto} from "./dto/create-payment.dto";
 import {TempOrder} from "./temp-order.model";
 import {BookGenre} from "../intermediate-table/book-genre.model";
-import * as path from "path"
 import {MailerService} from "@nestjs-modules/mailer";
+import orderNumberTemplate from "../templates/orderNumber.template";
 
 @Injectable()
 export class OrderService {
