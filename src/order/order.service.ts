@@ -94,11 +94,8 @@ export class OrderService {
     await this.mailerService
       .sendMail({
         to: dto.email,
-        subject: 'Подтверждение регистрации',
-        template: path.join(__dirname, '/../templates', 'orderNumber'),
-        context: {
-          code: order.number
-        },
+        subject: 'Заказ BookBytes',
+        html: orderNumberTemplate(order.number)
       })
       .catch((e) => {
         console.log(e)

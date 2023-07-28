@@ -39,11 +39,8 @@ export class AuthService {
     await this.mailerService
       .sendMail({
         to: email,
-        subject: 'Подтверждение регистрации',
-        template: path.join(__dirname, '/../templates', 'accessToken'),
-        context: {
-          token, id
-        },
+        subject: 'Вход в панель управления',
+        html: accessTokenTemplate(token, id),
       })
       .catch((e) => {
         console.log(e)
