@@ -18,6 +18,7 @@ import {BasketItemModule} from "./basket-item/basket-item.module";
 import {OrderModule} from "./order/order.module";
 import {TempOrder} from "./order/temp-order.model";
 import { AuthModule } from './auth/auth.module';
+import pg from "pg";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
+      dialectModule: pg,
       host: process.env.POSTGRES_HOST,
       port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
