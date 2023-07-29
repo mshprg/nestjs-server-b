@@ -32,6 +32,7 @@
     "@types/nodemailer": "^6.4.7",
     "bcryptjs": "^2.4.3",
     "class-validator": "^0.14.0",
+    "cors": "^2.8.5",
     "jwt-decode": "^3.1.2",
     "nodemailer": "^6.9.2",
     "pg": "^8.10.0",
