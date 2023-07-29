@@ -10,7 +10,7 @@ const start = async function() {
 
         app.enableCors(
             {
-                origin: 'https://bookbytes-panel.vercel.app/',
+                origin: 'https://bookbytes-panel.vercel.app',
                 credentials: true,
             }
         )
