@@ -9,8 +9,8 @@ const start = async function() {
 
         app.enableCors(
             {
-                origin: true,
-                methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+                allowedHeaders: ['content-type'],
+                origin: 'http://localhost:3000',
                 credentials: true,
             }
         )
