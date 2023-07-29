@@ -7,16 +7,10 @@ const start = async function() {
         const PORT = process.env.PORT || 5000
         const app = await NestFactory.create(AppModule)
 
-        /*
-        app.use(cors({
-            origin: '*'
-        }))
-         */
-
 
         app.enableCors(
             {
-                origin: 'http://localhost:3000',
+                origin: 'https://bookbytes-panel.vercel.app/',
                 credentials: true,
             }
         )
