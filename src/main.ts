@@ -10,7 +10,7 @@ const start = async function() {
 
         app.enableCors(
             {
-                origin: 'http://localhost:3000',
+                origin: 'https://bookbytes.ru',
                 credentials: true,
             }
         )
