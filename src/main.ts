@@ -9,7 +9,7 @@ const start = async function() {
 
         app.enableCors(
             {
-                allowedHeaders: ['content-type'],
+                allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept'],
                 origin: 'http://localhost:3000',
                 credentials: true,
             }
