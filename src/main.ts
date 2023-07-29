@@ -10,7 +10,7 @@ const start = async function() {
         app.enableCors(
             {
                 allowedHeaders: ['content-type'],
-                origin: 'http://localhost:3000/book/all-books',
+                origin: 'http://localhost:3000',
                 credentials: true,
             }
         )
