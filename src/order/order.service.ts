@@ -147,7 +147,7 @@ export class OrderService {
       },
       confirmation: {
         type: 'redirect',
-        return_url: `https://${process.env.CLIENT}/paid/${idempotenceKey}`
+        return_url: `${process.env.CLIENT}paid/${idempotenceKey}`
       },
       capture: true
     }
