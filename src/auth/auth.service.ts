@@ -2,8 +2,8 @@ import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {JwtService} from "@nestjs/jwt";
 import {MailerService} from "@nestjs-modules/mailer";
 import * as uuid from "uuid"
-import * as path from "path"
 import * as bcrypt from "bcryptjs"
+import accessTokenTemplate from "../templates/accessToken.template";
 
 @Injectable()
 export class AuthService {
@@ -39,11 +39,8 @@ export class AuthService {
     await this.mailerService
       .sendMail({
         to: email,
-        subject: 'Подтверждение регистрации',
-        template: path.join(__dirname, '/../templates', 'accessToken'),
-        context: {
-          token, id
-        },
+        subject: 'Вход в панель управления',
+        html: accessTokenTemplate(token, id),
       })
       .catch((e) => {
         console.log(e)

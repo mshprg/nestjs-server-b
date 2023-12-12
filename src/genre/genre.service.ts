@@ -50,7 +50,7 @@ export class GenreService {
     if (!genre) {
       throw new HttpException("Жанр не найден", HttpStatus.BAD_REQUEST)
     }
-    await this.bookGenreRepository.destroy({where: {genreId: genre.id}})
+    await this.bookGenreRepository.destroy({where: {genreId: id}})
     await genre.destroy()
     return genre
   }

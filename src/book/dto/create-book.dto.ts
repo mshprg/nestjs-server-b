@@ -16,7 +16,7 @@ export class CreateBookDto {
   @Length(60, 320, {message: "description от 60 до 320 символов"})
   description: string;
 
-  @Length(60, 550, {message: "beginning_book от 60 до 550 символов"})
+  @Length(60, 420, {message: "beginning_book от 60 до 420 символов"})
   beginning_book: string;
 
   @IsBoolean({message: "visibility имеет тип boolean"})
