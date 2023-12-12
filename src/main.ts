@@ -10,7 +10,7 @@ const start = async function() {
 
         app.enableCors(
             {
-                origin: process.env.ORIGIN,
+                origin: [process.env.CLIENT, process.env.PANEL],
                 credentials: true,
             }
         )
