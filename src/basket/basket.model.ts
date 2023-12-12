@@ -9,9 +9,6 @@ interface BasketCreationAttrs {
 @Table({ tableName: 'basket' })
 export class Basket extends Model<Basket, BasketCreationAttrs> {
 
-  @Column({ type: DataType.INTEGER, unique: true, autoIncrement: true })
-  id: number;
-
   @Column({type: DataType.BIGINT, unique: true, allowNull: false, primaryKey: true})
   token: number;
 
