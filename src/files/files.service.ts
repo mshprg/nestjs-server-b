@@ -29,7 +29,8 @@ export class FilesService {
       fs.writeFileSync(path.join(filePath, fileName), file.buffer)
       return fileName;
     } catch (e) {
-      throw new HttpException('Произошла ошибка при записи файла', HttpStatus.INTERNAL_SERVER_ERROR)
+      return ""
+      // throw new HttpException('Произошла ошибка при записи файла', HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
@@ -61,7 +62,7 @@ export class FilesService {
       case "pdf":
         break
       default:
-        throw new HttpException('Неверный формат изображения: доступные форматы .epub .pdf',
+        throw new HttpException('Неверный формат файла: доступные форматы .epub .pdf',
           HttpStatus.FORBIDDEN)
     }
     const fileName = uid + '.' + extname
@@ -73,7 +74,7 @@ export class FilesService {
       fs.writeFileSync(path.join(filePath, fileName), file.buffer)
     } catch (e) {
       console.log(e)
-      throw new HttpException('Произошла ошибка при записи файла', HttpStatus.INTERNAL_SERVER_ERROR)
+      // throw new HttpException('Произошла ошибка при записи файла', HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 }
