@@ -171,12 +171,9 @@ export class BookService {
     const books = await this.bookRepository.findAll({where: {visibility: true}})
     let min = 0, max = 0
     if (books.length !== 0) {
-      books.sort((prev, next) => prev.price - next.price)
-      min = books[0].price
-      max = books[books.length - 1].price
-      console.log(books[0])
-      console.log(books[books.length - 1])
-      console.log(min, max)
+      books.sort((prev, next) => prev.dataValues.price - next.dataValues.price)
+      min = books[0].dataValues.price
+      max = books[books.length - 1].dataValues.price
     }
     return {min, max}
   }
