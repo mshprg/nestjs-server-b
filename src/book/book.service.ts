@@ -175,6 +175,7 @@ export class BookService {
       min = books[0].price
       max = books[books.length - 1].price
     }
+    console.log(min, max)
     return {min, max}
   }
 
