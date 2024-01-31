@@ -174,8 +174,10 @@ export class BookService {
       books.sort((prev, next) => prev.price - next.price)
       min = books[0].price
       max = books[books.length - 1].price
+      console.log(books[0])
+      console.log(books[books.length - 1])
+      console.log(min, max)
     }
-    console.log(min, max)
     return {min, max}
   }
 
